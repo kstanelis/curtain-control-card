@@ -1,1 +1,1 @@
-export const CARD_TYPE = 'curtain-control-card';
+export const CARD_TYPE: number = 'curtain-control-card';
