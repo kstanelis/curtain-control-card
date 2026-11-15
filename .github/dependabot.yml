@@ -14,3 +14,8 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # typescript-eslint 8.x supports TypeScript <6.1 only (TS 7 breaks npm ci).
+      # Revisit when typescript-eslint widens its typescript peer range.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
