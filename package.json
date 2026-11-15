@@ -1,0 +1,53 @@
+{
+  "name": "curtain-control-card",
+  "version": "0.0.0",
+  "description": "Vertical-slider curtain (cover) card for Home Assistant, built for wall panels",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "format:check": "prettier --check .",
+    "lit:analyze": "lit-analyzer src --strict --maxWarnings 0 --rules.no-unknown-tag-name off",
+    "check": "npm run audit && npm run lint && npm run format:check && npm run typecheck && npm run lit:analyze && npm run test:coverage",
+    "prepare": "husky",
+    "audit": "npm audit --audit-level=low"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,mjs,js}": "prettier --write"
+  },
+  "dependencies": {
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^5.1.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-lit": "^2.3.1",
+    "eslint-plugin-wc": "^3.1.0",
+    "happy-dom": "^21.0.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "lit-analyzer": "^2.0.3",
+    "prettier": "^3.9.10",
+    "ts-lit-plugin": "^2.0.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    }
+  }
+}

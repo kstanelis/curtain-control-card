@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+docs/superpowers/
+.ha-*/
+.DS_Store
+.superpowers/
+CLAUDE.md
+.claude
