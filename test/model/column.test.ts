@@ -15,7 +15,7 @@ const curtain = (over: Partial<CurtainInput> = {}) =>
     ...over,
   });
 
-describe('columnView — state table (spec §5)', () => {
+describe('columnView — state table', () => {
   it('open with position: normal, fill = position, NN% readout, all controls', () => {
     expect(columnView(curtain(), null)).toEqual({
       key: '0:cover.a',
@@ -48,7 +48,7 @@ describe('columnView — state table (spec §5)', () => {
   });
 });
 
-describe('columnView — no position support (spec §3, Edge 2)', () => {
+describe('columnView — no position support', () => {
   const noSet = { open: true, stop: false, close: true, setPosition: false };
 
   it('without SET_POSITION: read-only, full when open, state label, buttons per bits', () => {
@@ -78,7 +78,7 @@ describe('columnView — no position support (spec §3, Edge 2)', () => {
   });
 });
 
-describe('columnView — unavailable / unknown / missing (spec §3, Edge 1)', () => {
+describe('columnView — unavailable / unknown / missing', () => {
   it.each(['unavailable', 'unknown'])('%s: dash, empty, controls shown but disabled', (state) => {
     const v = columnView(curtain({ state }), 40);
     expect(v.status).toBe('unavailable');
@@ -91,7 +91,7 @@ describe('columnView — unavailable / unknown / missing (spec §3, Edge 1)', ()
   });
 });
 
-describe('fabricChipEdge (owner 2026-11-16: chip never covers the handle)', () => {
+describe('fabricChipEdge: chip never covers the handle', () => {
   it.each([
     [0, true, 'top'],
     [49, true, 'top'],

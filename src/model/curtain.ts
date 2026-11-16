@@ -28,7 +28,7 @@ export interface CurtainInput extends Omit<Curtain, 'state' | 'position'> {
   position: unknown;
 }
 
-/** Cover is running — the only trigger for the moving indicator and pulse (spec §4). */
+/** Cover is running — the only trigger for the moving indicator and pulse. */
 export const isMoving = (state: string): boolean => state === 'opening' || state === 'closing';
 
 const KNOWN: readonly string[] = ['open', 'closed', 'opening', 'closing'];

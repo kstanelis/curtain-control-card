@@ -3,7 +3,7 @@ import type { HomeAssistant } from './types';
 /**
  * Whether a new `hass` changes what the card shows: one of its entities changed (HA replaces
  * the state object on change), or translations / formatters / locale changed — HA pushes a new
- * `hass` when translations load after the first render (seen on real HA, 2026-11-16).
+ * `hass` when translations load after the first render.
  */
 export function relevantChange(
   old: HomeAssistant | undefined,

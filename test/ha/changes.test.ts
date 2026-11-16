@@ -44,7 +44,7 @@ describe('relevantChange — re-render only when the card would look different',
     expect(relevantChange(base, next, ids)).toBe(true);
   });
 
-  it('translations or formatters arrive later → render (Review Focus 6)', () => {
+  it('translations or formatters arrive later → render', () => {
     expect(relevantChange(base, { ...base, formatEntityState: () => 'x' }, ids)).toBe(true);
     expect(relevantChange(base, { ...base, localize: () => 'x' }, ids)).toBe(true);
     expect(relevantChange(base, { ...base, formatEntityName: () => 'x' }, ids)).toBe(true);

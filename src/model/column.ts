@@ -3,7 +3,7 @@ import { clampPercent } from './position';
 
 export type ColumnStatus = 'normal' | 'readonly' | 'unavailable';
 
-/** What one column renders (spec §3 missing-value rules, §5 state table). */
+/** What one column renders. */
 export interface ColumnView {
   key: string;
   entityId: string;

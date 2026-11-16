@@ -1,6 +1,7 @@
 import { isMoving } from './curtain';
 
-const HOLD_MS = 30_000;
+/** Pending target is shown at most this long. */
+export const PENDING_HOLD_MS = 30_000;
 const REACHED_WITHIN = 1;
 
 interface Pending {
@@ -10,7 +11,7 @@ interface Pending {
 }
 
 /**
- * Targets sent to covers, shown until the cover catches up (spec §4 "Pending target"),
+ * Targets sent to covers, shown until the cover catches up,
  * keyed by column key `${index}:${entityId}` so duplicate entities stay independent.
  */
 export class PendingTargets {
@@ -20,8 +21,9 @@ export class PendingTargets {
     this.items.set(key, { target, since: now, moved: false });
   }
 
-  clear(key: string): void {
-    this.items.delete(key);
+  /** Drop the key's target; with `target`, only if that is still the target (a newer one stays). */
+  clear(key: string, target?: number): void {
+    if (target === undefined || this.items.get(key)?.target === target) this.items.delete(key);
   }
 
   /** Target to display, or null when the entity's own value should be shown. */
@@ -31,7 +33,7 @@ export class PendingTargets {
     const moving = isMoving(state);
     const reached = current !== null && Math.abs(current - p.target) <= REACHED_WITHIN;
     const stopped = p.moved && !moving;
-    if (reached || stopped || now - p.since >= HOLD_MS) {
+    if (reached || stopped || now - p.since >= PENDING_HOLD_MS) {
       this.items.delete(key);
       return null;
     }

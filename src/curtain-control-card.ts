@@ -1,6 +1,7 @@
 import { LitElement, html, nothing, svg, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { CARD_TYPE, normalizeConfig, type CardConfig } from './config';
 import { relevantChange } from './ha/changes';
@@ -10,11 +11,15 @@ import { callCover, type ButtonAction } from './ha/services';
 import { entitySuggestion, stubConfig } from './ha/suggest';
 import type { HomeAssistant } from './ha/types';
 import { columnView, fabricChipEdge, type ColumnView } from './model/column';
+import type { Curtain } from './model/curtain';
 import { computeLayout, type Layout } from './model/layout';
+import { PENDING_HOLD_MS, PendingTargets } from './model/pending';
+import { keyStep } from './model/position';
 import { GRID_OPTIONS, LAYOUT_OPTIONS, cardSize } from './model/sizing';
 import { themeTokens } from './model/theme';
 import { supportsColorMix } from './ui/css-support';
 import { mdiAlertCircleOutline, mdiArrowDown, mdiArrowUp, mdiStop } from '@mdi/js';
+import { SliderDrag } from './ui/slider-drag';
 import { cardStyles } from './ui/styles';
 
 /** Probed once per page: the engine's color-mix support never changes. */
@@ -43,13 +48,51 @@ export class CurtainControlCard extends LitElement {
   private _hass?: HomeAssistant;
   private observer?: ResizeObserver;
   private observed?: Element;
+  private readonly drag = new SliderDrag(
+    () => {
+      this.requestUpdate();
+    },
+    (key, v) => {
+      this.commit(key, v);
+    },
+  );
+  /** Keyboard value per column key, from the first keydown until the last slider key is up. */
+  private readonly keyed = new Map<string, { v: number; held: Set<string> }>();
+  private pending = new PendingTargets();
+  /** One pending-expiry timer per column key. */
+  private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
+  /** Curtains from the last render, by key: commit reads position and state from here. */
+  private curtains = new Map<string, Curtain>();
+  // Track-independent pointer handlers: SliderDrag matches the event to the active pointer.
+  private readonly onPointerMove = (ev: PointerEvent): void => {
+    this.drag.move(ev);
+  };
+  private readonly onPointerUp = (ev: PointerEvent): void => {
+    this.drag.up(ev);
+  };
+  private readonly onPointerCancel = (): void => {
+    this.drag.cancel();
+  };
 
   static getStubConfig(hass: HomeAssistant): ReturnType<typeof stubConfig> {
     return stubConfig(hass);
   }
 
   setConfig(raw: unknown): void {
-    this.config = normalizeConfig(raw, { allowEmpty: true });
+    const config = normalizeConfig(raw, { allowEmpty: true });
+    // Column keys are `${index}:${entity}`: when the entity list changes a key may name another
+    // column, so drop gestures and targets. Other edits (height, theme…) keep them.
+    const ids = (c?: CardConfig) => c?.entities.map((e) => e.entity).join('\n');
+    if (ids(config) !== ids(this.config)) this.resetInteraction();
+    this.config = config;
+  }
+
+  private resetInteraction(): void {
+    this.drag.cancel();
+    this.keyed.clear();
+    this.pending = new PendingTargets();
+    for (const t of this.timers.values()) clearTimeout(t);
+    this.timers.clear();
   }
 
   set hass(next: HomeAssistant | undefined) {
@@ -90,6 +133,10 @@ export class CurtainControlCard extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.observer?.disconnect();
+    this.drag.cancel();
+    this.keyed.clear();
+    for (const t of this.timers.values()) clearTimeout(t);
+    this.timers.clear();
   }
 
   /** ha-card exists only once config is set, which may be after the first render. */
@@ -136,7 +183,17 @@ export class CurtainControlCard extends LitElement {
 
   private renderGrid(config: CardConfig, hass: HomeAssistant): TemplateResult {
     const layout = computeLayout(config.entities.length, this.size.w, this.size.h, config.style);
-    const views = toCurtains(hass, config.entities).map((c) => columnView(c, null));
+    const now = Date.now();
+    const curtains = toCurtains(hass, config.entities);
+    this.curtains = new Map(curtains.map((c) => [c.key, c]));
+    const views = curtains.map((c) =>
+      columnView(
+        c,
+        this.drag.value(c.key) ??
+          this.keyed.get(c.key)?.v ??
+          this.pending.resolve(c.key, c.position, c.state, now),
+      ),
+    );
     const gridStyle = {
       gridTemplateColumns: `repeat(${String(layout.perRow)}, minmax(0, 1fr))`,
       gridTemplateRows: `repeat(${String(layout.rows)}, minmax(0, 1fr))`,
@@ -152,14 +209,16 @@ export class CurtainControlCard extends LitElement {
   }
 
   private renderColumn(v: ColumnView, layout: Layout, pill: boolean): TemplateResult {
+    const dragging = this.drag.value(v.key) !== null;
     const classes = {
       column: true,
       compact: layout.compact,
       [layout.buttons]: true,
       [v.status]: true,
+      dragging,
     };
     const readout = html`${
-        v.moving
+        v.moving && !dragging
           ? icon(v.moving === 'up' ? mdiArrowUp : mdiArrowDown, pill ? 18 : 16, 'moving', v.moving)
           : nothing
       }<span>${v.readout}</span>`;
@@ -217,6 +276,26 @@ export class CurtainControlCard extends LitElement {
       aria-valuetext=${v.readout}
       aria-readonly=${v.interactive ? 'false' : 'true'}
       aria-disabled=${v.disabled ? 'true' : 'false'}
+      tabindex=${ifDefined(v.interactive ? 0 : undefined)}
+      @pointerdown=${(ev: PointerEvent) => {
+        if (v.interactive && !this.keyed.has(v.key)) {
+          this.drag.down(v.key, ev, ev.currentTarget as HTMLElement);
+        }
+      }}
+      @pointermove=${this.onPointerMove}
+      @pointerup=${this.onPointerUp}
+      @pointercancel=${this.onPointerCancel}
+      @lostpointercapture=${this.onPointerCancel}
+      @keydown=${(ev: KeyboardEvent) => {
+        this.keyDown(v, ev);
+      }}
+      @keyup=${(ev: KeyboardEvent) => {
+        this.keyUp(v, ev);
+      }}
+      @blur=${() => {
+        // A held key whose keyup never arrives (focus moved away): revert, send nothing.
+        if (this.keyed.delete(v.key)) this.requestUpdate();
+      }}
     >
       ${inner}
     </div>`;
@@ -231,7 +310,7 @@ export class CurtainControlCard extends LitElement {
         aria-label=${localize(this._hass, `card.${action}`)}
         ?disabled=${v.disabled}
         @click=${() => {
-          this.press(action, v.entityId);
+          this.press(action, v);
         }}
       >
         ${icon(path, size)}
@@ -243,10 +322,54 @@ export class CurtainControlCard extends LitElement {
     </div>`;
   }
 
-  private press(action: ButtonAction, entityId: string): void {
+  private press(action: ButtonAction, v: ColumnView): void {
     if (!this._hass) return;
+    this.pending.clear(v.key);
+    this.requestUpdate();
     // HA already shows a toast for a failed service call; don't leave the rejection unhandled.
-    callCover(this._hass, action, entityId).catch(() => undefined);
+    callCover(this._hass, action, v.entityId).catch(() => undefined);
+  }
+
+  /** Keyboard: step on keydown (auto-repeat included), one command once all keys are up. */
+  private keyDown(v: ColumnView, ev: KeyboardEvent): void {
+    if (!v.interactive || this.drag.value(v.key) !== null) return;
+    const next = keyStep(ev.key, v.fill);
+    if (next === null) return;
+    ev.preventDefault();
+    const held = this.keyed.get(v.key)?.held ?? new Set<string>();
+    held.add(ev.key);
+    this.keyed.set(v.key, { v: next, held });
+    this.requestUpdate();
+  }
+
+  private keyUp(v: ColumnView, ev: KeyboardEvent): void {
+    const k = this.keyed.get(v.key);
+    if (!k?.held.delete(ev.key) || k.held.size > 0) return;
+    this.keyed.delete(v.key);
+    this.commit(v.key, k.v);
+  }
+
+  /** Release of a drag or key: exactly one set_cover_position. */
+  private commit(key: string, v: number): void {
+    this.requestUpdate();
+    const hass = this._hass;
+    const curtain = this.curtains.get(key);
+    if (!hass || !curtain?.features.setPosition) return;
+    // Always resend: some covers never report opening/closing, so "already there" can't be trusted.
+    this.pending.set(key, v, Date.now());
+    clearTimeout(this.timers.get(key));
+    this.timers.set(
+      key,
+      setTimeout(() => {
+        this.timers.delete(key);
+        this.requestUpdate();
+      }, PENDING_HOLD_MS),
+    );
+    const pending = this.pending;
+    callCover(hass, 'set', curtain.entityId, v).catch(() => {
+      pending.clear(key, v); // only this command's target; a newer one stays
+      this.requestUpdate();
+    });
   }
 
   private moreInfo(entityId: string): void {

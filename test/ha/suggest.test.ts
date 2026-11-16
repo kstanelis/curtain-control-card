@@ -49,7 +49,7 @@ describe('stubConfig — wiring (ranking is tested in test/model/stub.test.ts)',
   });
 });
 
-describe('entitySuggestion (HA 2026.6+, spec §9)', () => {
+describe('entitySuggestion (HA 2026.6+)', () => {
   const hass = fakeHass({
     'cover.a': cover('curtain'),
     'cover.s': cover('shade'),

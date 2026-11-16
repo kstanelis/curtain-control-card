@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { callCover } from '../../src/ha/services';
 import { fakeHass } from '../helpers/hass';
 
-describe('callCover (spec §6)', () => {
+describe('callCover', () => {
   it.each([
     ['open', 'open_cover'],
     ['close', 'close_cover'],

@@ -1,66 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import '../../src/curtain-control-card';
 import { GRID_OPTIONS, LAYOUT_OPTIONS } from '../../src/model/sizing';
+import { full, installCardEnv, mount, one, q, qa, resetCardEnv, size } from '../helpers/card';
 import { fakeHass, type FakeHass } from '../helpers/hass';
 
-/** ResizeObserver stand-in: reports the given card size on observe. */
-let size = { w: 440, h: 360 };
-class FakeResizeObserver {
-  constructor(private readonly cb: ResizeObserverCallback) {}
-  observe(target: Element): void {
-    Object.defineProperty(target, 'clientWidth', { configurable: true, value: size.w });
-    Object.defineProperty(target, 'clientHeight', { configurable: true, value: size.h });
-    this.cb([{ target } as ResizeObserverEntry], this as unknown as ResizeObserver);
-  }
-  disconnect(): void {
-    // nothing to release
-  }
-}
-
-const full = (pos: number) => ({
-  state: 'open',
-  attributes: {
-    current_position: pos,
-    supported_features: 15,
-    friendly_name: `Cover ${String(pos)}`,
-  },
-});
-
-async function mount(config: Record<string, unknown>, hass: FakeHass, layout?: string) {
-  const el = document.createElement('curtain-control-card');
-  el.setConfig({ type: 'custom:curtain-control-card', ...config });
-  el.hass = hass;
-  if (layout) el.layout = layout;
-  document.body.appendChild(el);
-  await el.updateComplete;
-  await el.updateComplete; // second pass after the first ResizeObserver report
-  return el;
-}
-
-const root = (el: Element): ShadowRoot => {
-  if (!el.shadowRoot) throw new Error('no shadow root');
-  return el.shadowRoot;
-};
-const q = (el: Element, sel: string): HTMLElement | null =>
-  root(el).querySelector<HTMLElement>(sel);
-/** Like q, but the element must exist. */
-const one = (el: Element, sel: string): HTMLElement => {
-  const found = q(el, sel);
-  if (!found) throw new Error(`missing ${sel}`);
-  return found;
-};
-const qa = (el: Element, sel: string): HTMLElement[] => [
-  ...root(el).querySelectorAll<HTMLElement>(sel),
-];
-
-beforeEach(() => {
-  size = { w: 440, h: 360 };
-  vi.stubGlobal('ResizeObserver', FakeResizeObserver);
-});
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.unstubAllGlobals();
-});
+beforeEach(installCardEnv);
+afterEach(resetCardEnv);
 
 const four = fakeHass({
   'cover.a': full(10),
@@ -126,7 +70,7 @@ describe('render', () => {
     expect(track.getAttribute('aria-valuenow')).toBe('65');
   });
 
-  it('only interactive pill fills reserve room for the handle bar (seen on real HA)', async () => {
+  it('only interactive pill fills reserve room for the handle bar', async () => {
     const hass = fakeHass({
       'cover.a': full(0),
       'cover.r': { state: 'closed', attributes: { supported_features: 3 } },
@@ -158,7 +102,7 @@ describe('render', () => {
   });
 });
 
-describe('buttons and more-info (spec §6)', () => {
+describe('buttons and more-info', () => {
   it.each([
     ['.open', 'open_cover'],
     ['.stop', 'stop_cover'],
@@ -266,7 +210,7 @@ describe('hass updates', () => {
   });
 });
 
-describe('sizing hooks (spec §7)', () => {
+describe('sizing hooks', () => {
   it('getCardSize from px height; grid options are fresh copies', async () => {
     const el = await mount({ entities: ids4 }, four);
     expect(el.getCardSize()).toBe(8);
@@ -276,15 +220,13 @@ describe('sizing hooks (spec §7)', () => {
   });
 
   it('non-px height uses the measured height', async () => {
-    size = { w: 440, h: 576 };
+    size.h = 576;
     const el = await mount({ entities: ids4, height: '80vh' }, four);
     expect(el.getCardSize()).toBe(12);
   });
 });
 
 describe('config', () => {
-  // Owner decision 2026-11-16 (1a): HA sets `preview` only after setConfig, so an empty
-  // list never throws; the card shows the no-curtains hint everywhere (spec Edge 6).
   it('no entities shows the hint instead of throwing', async () => {
     const el = document.createElement('curtain-control-card');
     el.setConfig({ type: 'x', entities: [] });

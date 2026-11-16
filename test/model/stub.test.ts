@@ -7,7 +7,7 @@ const c = (entityId: string, deviceClass?: string, state = 'open'): StubCandidat
   deviceClass,
 });
 
-describe('pickStubEntities (spec §9)', () => {
+describe('pickStubEntities', () => {
   it('up to 4: curtain, then shade, blind, any', () => {
     expect(
       pickStubEntities([

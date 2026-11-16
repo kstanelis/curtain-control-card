@@ -10,7 +10,7 @@ const SERVICE: Record<CoverAction, string> = {
   set: 'set_cover_position',
 };
 
-/** The only place the card calls Home Assistant services (spec §6). */
+/** The only place the card calls Home Assistant services. */
 export function callCover(
   hass: HomeAssistant,
   action: ButtonAction,
