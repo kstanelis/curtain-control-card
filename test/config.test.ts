@@ -57,6 +57,17 @@ describe('normalizeConfig', () => {
     expect(cfg.accent).toBe('#e0a24a');
   });
 
+  it.each(['', '  ', 123, null])('drops a blank or non-string accent (%j)', (accent) => {
+    const cfg = normalizeConfig({ type: TYPE, entities: ['cover.a'], accent });
+    expect('accent' in cfg).toBe(false);
+  });
+
+  it('trims the accent', () => {
+    expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], accent: ' red ' }).accent).toBe(
+      'red',
+    );
+  });
+
   it('passes unknown keys through untouched', () => {
     expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], foo: 1 }).foo).toBe(1);
   });

@@ -62,7 +62,9 @@ export function normalizeConfig(raw: unknown, opts: { allowEmpty?: boolean } = {
         ? raw.height
         : DEFAULTS.height;
 
-  return {
+  const accent = typeof raw.accent === 'string' ? raw.accent.trim() : '';
+
+  const config: CardConfig = {
     ...raw,
     type: typeof raw.type === 'string' ? raw.type : '',
     entities: list.map(normalizeEntity),
@@ -70,4 +72,8 @@ export function normalizeConfig(raw: unknown, opts: { allowEmpty?: boolean } = {
     theme: theme as ThemeMode,
     height,
   };
+  // Blank or non-string accent → unset, so the theme default applies.
+  if (accent) config.accent = accent;
+  else delete config.accent;
+  return config;
 }
