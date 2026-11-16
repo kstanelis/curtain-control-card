@@ -16,7 +16,10 @@
     "lit:analyze": "lit-analyzer src --strict --maxWarnings 0 --rules.no-unknown-tag-name off",
     "check": "npm run audit && npm run lint && npm run format:check && npm run typecheck && npm run lit:analyze && npm run test:coverage",
     "prepare": "husky",
-    "audit": "npm audit --audit-level=low"
+    "audit": "npm audit --audit-level=low",
+    "e2e": "playwright test",
+    "ha:up": "bash scripts/ha-up.sh",
+    "ha:down": "bash scripts/ha-down.sh"
   },
   "lint-staged": {
     "*.ts": [
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@mdi/js": "^7.4.47",
+    "@playwright/test": "1.64.1",
     "@vitest/coverage-v8": "^5.1.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.14.0",
