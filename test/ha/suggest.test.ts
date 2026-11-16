@@ -7,8 +7,8 @@ const cover = (device_class?: string) => ({
   attributes: device_class ? { device_class } : {},
 });
 
-describe('stubConfig (spec §9)', () => {
-  it('picks up to 4 covers: curtain, then shade, blind, any', () => {
+describe('stubConfig — wiring (ranking is tested in test/model/stub.test.ts)', () => {
+  it('feeds only covers from hass.states to the core ranking', () => {
     const hass = fakeHass({
       'cover.a': cover('curtain'),
       'cover.b': cover('blind'),
@@ -24,25 +24,21 @@ describe('stubConfig (spec §9)', () => {
     });
   });
 
-  it('puts unavailable/unknown covers after every working cover', () => {
+  it('passes state through, so dead covers rank last', () => {
     const hass = fakeHass({
-      'cover.c1': { state: 'unavailable', attributes: { device_class: 'curtain' } },
-      'cover.c2': { state: 'unknown', attributes: { device_class: 'curtain' } },
-      'cover.n': cover(),
-      'cover.s': cover('shade'),
-      'cover.c3': cover('curtain'),
+      'cover.a': { state: 'unavailable', attributes: { device_class: 'curtain' } },
+      'cover.b': cover(),
     });
-    expect(stubConfig(hass).entities).toEqual(['cover.c3', 'cover.s', 'cover.n', 'cover.c1']);
+    expect(stubConfig(hass).entities).toEqual(['cover.b', 'cover.a']);
   });
 
-  it('breaks ties by entity id, not hass.states order', () => {
-    const hass = fakeHass({ 'cover.z': cover('curtain'), 'cover.m': cover('curtain') });
-    expect(stubConfig(hass).entities).toEqual(['cover.m', 'cover.z']);
-  });
-
-  it('falls through the classes when there are few curtains', () => {
-    const hass = fakeHass({ 'cover.c': cover('garage'), 'cover.b': cover('blind') });
-    expect(stubConfig(hass).entities).toEqual(['cover.b', 'cover.c']);
+  it('reads device_class from attributes and skips empty state slots', () => {
+    const hass = fakeHass({
+      'cover.n': { state: 'open', attributes: {} },
+      'cover.s': { state: 'open', attributes: { device_class: 'shade' } },
+    });
+    hass.states['cover.gone'] = undefined;
+    expect(stubConfig(hass).entities).toEqual(['cover.s', 'cover.n']);
   });
 
   it('no covers → empty list (editor preview shows the hint)', () => {
