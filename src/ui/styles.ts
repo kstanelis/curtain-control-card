@@ -102,6 +102,14 @@ export const cardStyles = css`
     touch-action: none;
     cursor: ns-resize;
   }
+  .normal .track:focus-visible {
+    outline: 2px solid var(--cc-accent);
+    outline-offset: 2px;
+  }
+  /* Drag ring (spec §5 "dragging"). */
+  .dragging .track {
+    box-shadow: 0 0 0 3px var(--cc-accent-tint);
+  }
   .compact .track {
     border-radius: 12px;
   }

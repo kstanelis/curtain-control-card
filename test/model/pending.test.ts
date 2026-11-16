@@ -50,3 +50,14 @@ describe('PendingTargets', () => {
     expect(p.resolve('0:cover.a', 20, 'open', 10)).toBe(50);
   });
 });
+
+describe('PendingTargets.clear with a target', () => {
+  it('only clears when the target still matches (a late failure must not drop a newer command)', () => {
+    const p = new PendingTargets();
+    p.set(KEY, 70, 0);
+    p.clear(KEY, 40);
+    expect(p.resolve(KEY, 20, 'open', 1)).toBe(70);
+    p.clear(KEY, 70);
+    expect(p.resolve(KEY, 20, 'open', 1)).toBeNull();
+  });
+});
