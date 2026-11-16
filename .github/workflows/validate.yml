@@ -1,10 +1,8 @@
 name: Validate
 
+# Not on push/pull_request yet: HACS reads the built card from a GitHub release, and until the
+# first release exists every run fails on repository structure.
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
