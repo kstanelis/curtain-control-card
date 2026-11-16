@@ -1,1 +1,1 @@
-export const CARD_TYPE = 'curtain-control-card';
+export { CARD_TYPE } from './config';

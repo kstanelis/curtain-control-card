@@ -16,6 +16,9 @@ export interface CardConfig {
   [key: string]: unknown;
 }
 
+/** Custom element name; Lovelace type is `custom:${CARD_TYPE}`. */
+export const CARD_TYPE = 'curtain-control-card';
+
 export const MAX_ENTITIES = 8;
 
 export const DEFAULTS = { style: 'pill', theme: 'auto', height: '360px' } as const;
@@ -26,12 +29,15 @@ const THEMES: readonly string[] = ['auto', 'light', 'dark'];
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
+/** Accepted entity domain (spec §2 ROLE_DOMAINS). */
+export const isCoverId = (id: string): boolean => id.startsWith('cover.');
+
 function normalizeEntity(item: unknown): EntityConf {
   const raw = typeof item === 'string' ? { entity: item } : item;
   if (!isRecord(raw) || typeof raw.entity !== 'string' || raw.entity === '') {
     throw new Error('Each entity needs an entity id');
   }
-  if (!raw.entity.startsWith('cover.')) {
+  if (!isCoverId(raw.entity)) {
     throw new Error(`Only cover entities are supported: ${raw.entity}`);
   }
   const name = typeof raw.name === 'string' ? raw.name.trim() : '';

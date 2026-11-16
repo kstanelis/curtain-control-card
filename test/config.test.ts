@@ -68,6 +68,10 @@ describe('normalizeConfig', () => {
     );
   });
 
+  it('a non-string type becomes empty', () => {
+    expect(normalizeConfig({ type: 42, entities: ['cover.a'] }).type).toBe('');
+  });
+
   it('passes unknown keys through untouched', () => {
     expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], foo: 1 }).foo).toBe(1);
   });
