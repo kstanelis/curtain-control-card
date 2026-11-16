@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { authFile, targets } from './e2e/ha';
+import { targets } from './e2e/ha';
 
 // Needs running HA instances: `npm run build && npm run ha:up -- 2024.8.0 8124 && npm run ha:up -- stable 8125`.
 export default defineConfig({
@@ -19,7 +19,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
         baseURL: t.url,
-        storageState: authFile(t),
       },
     },
     {
@@ -32,7 +31,6 @@ export default defineConfig({
         userAgent:
           'Mozilla/5.0 (Linux; Android 12; Wall Display X2 Build/SQ3A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/116.0.0.0 Safari/537.36',
         baseURL: t.url,
-        storageState: authFile(t),
       },
     },
   ]),

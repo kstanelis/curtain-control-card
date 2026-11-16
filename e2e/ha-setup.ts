@@ -1,7 +1,7 @@
 // Playwright global setup: onboard each HA instance, register the card, create the test
 // dashboards and save a browser login per instance.
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { HaSocket, authFile, hassTokens, signIn, targets, type Target } from './ha';
+import { copyFileSync, existsSync } from 'node:fs';
+import { HaSocket, hassTokens, saveAuth, signIn, targets, type Target } from './ha';
 
 export const PILL_4 = [
   'cover.cc_living_left',
@@ -161,20 +161,7 @@ async function prepare(t: Target): Promise<void> {
     });
     await waitForCovers(ws);
 
-    mkdirSync('.e2e-auth', { recursive: true });
-    writeFileSync(`${authFile(t)}.token`, JSON.stringify({ token, version: config.version }));
-    writeFileSync(
-      authFile(t),
-      JSON.stringify({
-        cookies: [],
-        origins: [
-          {
-            origin: t.url,
-            localStorage: [{ name: 'hassTokens', value: hassTokens(t.url, tokens) }],
-          },
-        ],
-      }),
-    );
+    saveAuth(t, { token, version: config.version, browser: hassTokens(t.url, tokens) });
   } finally {
     ws.close();
   }

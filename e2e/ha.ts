@@ -1,6 +1,5 @@
 // Small Home Assistant client for the e2e suite: onboarding/login over REST, commands over the
 // websocket API. Uses Node's built-in fetch and WebSocket.
-import { readFileSync } from 'node:fs';
 
 export const USER = { name: 'Dev', username: 'dev', password: 'devdevdev', language: 'en' };
 
@@ -21,17 +20,37 @@ export function targets(): Target[] {
   });
 }
 
-export const authFile = (t: Target): string => `.e2e-auth/${t.name}.json`;
-
 export interface Auth {
   /** Long-lived token for the test process. */
   token: string;
   /** HA version reported by the instance (`stable` resolved). */
   version: string;
+  /** `hassTokens` localStorage value that logs the browser in. */
+  browser: string;
 }
 
-export const readAuth = (t: Target): Auth =>
-  JSON.parse(readFileSync(`${authFile(t)}.token`, 'utf8')) as Auth;
+// Global setup hands credentials to the workers through the environment, never through files.
+const envKey = (t: Target): string => `CC_E2E_AUTH_${Buffer.from(t.name).toString('hex')}`;
+
+export function saveAuth(t: Target, auth: Auth): void {
+  process.env[envKey(t)] = JSON.stringify(auth);
+}
+
+export function readAuth(t: Target): Auth {
+  const raw = process.env[envKey(t)];
+  if (!raw) throw new Error(`no credentials for ${t.name}; did the global setup run?`);
+  return JSON.parse(raw) as Auth;
+}
+
+/** Playwright storage state that logs the browser in to a target. */
+export function storageState(t: Target) {
+  return {
+    cookies: [],
+    origins: [
+      { origin: t.url, localStorage: [{ name: 'hassTokens', value: readAuth(t).browser }] },
+    ],
+  };
+}
 
 export interface Tokens {
   access_token: string;
@@ -146,11 +165,22 @@ export class HaSocket {
   private readonly listeners = new Map<number, (e: HaEvent) => void>();
 
   private constructor(private readonly ws: WebSocket) {
+    ws.addEventListener('close', () => {
+      const closed = { success: false, error: { code: 'closed', message: 'websocket closed' } };
+      for (const resolve of [...this.pending.values()]) resolve(closed);
+      this.pending.clear();
+    });
     ws.addEventListener('message', (ev) => {
       const msg = JSON.parse(String(ev.data)) as Record<string, unknown>;
-      const id = msg.id as number;
-      if (msg.type === 'event') this.listeners.get(id)?.(msg.event as HaEvent);
-      else this.pending.get(id)?.(msg);
+      const id = msg.id;
+      if (typeof id !== 'number' || !Number.isInteger(id)) return;
+      if (msg.type === 'event') {
+        const listener = this.listeners.get(id);
+        if (typeof listener === 'function') listener(msg.event as HaEvent);
+      } else {
+        const resolve = this.pending.get(id);
+        if (typeof resolve === 'function') resolve(msg);
+      }
     });
   }
 

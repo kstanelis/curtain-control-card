@@ -1,5 +1,5 @@
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
-import { HaSocket, readAuth, targets, type HaEvent, type Target } from './ha';
+import { HaSocket, readAuth, storageState, targets, type HaEvent, type Target } from './ha';
 
 export interface CoverCall {
   service: string;
@@ -17,10 +17,19 @@ interface Fixtures {
   openView: (path: string, cards: number) => Promise<Locator>;
 }
 
+const targetOf = (project: string): Target => {
+  const t = targets().find((x) => [x.name, `${x.name}-shelly`].includes(project));
+  if (!t) throw new Error(`no HA target for project ${project}`);
+  return t;
+};
+
 export const test = base.extend<Fixtures>({
+  // Logged in through the credentials global setup passed in the environment.
+  storageState: async ({}, use, info) => {
+    await use(storageState(targetOf(info.project.name)));
+  },
   target: async ({}, use, info) => {
-    const t = targets().find((x) => [x.name, `${x.name}-shelly`].includes(info.project.name));
-    if (!t) throw new Error(`no HA target for project ${info.project.name}`);
+    const t = targetOf(info.project.name);
     const { version } = readAuth(t);
     await use({ ...t, haVersion: version, legacy: version.startsWith('2024.') });
   },
