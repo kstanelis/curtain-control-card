@@ -1,0 +1,51 @@
+# Helpers behind the demo covers: position (input_number) and availability (input_boolean).
+# Load next to ha-demo.yaml or ha-demo-legacy.yaml; see dev/README.md.
+
+input_number:
+  cc_living_left_position:
+    name: Living left position
+    min: 0
+    max: 100
+    step: 1
+    initial: 65
+  cc_living_right_position:
+    name: Living right position
+    min: 0
+    max: 100
+    step: 1
+    initial: 100
+  cc_bedroom_position:
+    name: Bedroom position
+    min: 0
+    max: 100
+    step: 1
+    initial: 0
+  cc_kitchen_blind_position:
+    name: Kitchen blind position
+    min: 0
+    max: 100
+    step: 1
+    initial: 40
+  cc_hall_readonly_position:
+    name: Hall (no position) position
+    min: 0
+    max: 100
+    step: 1
+    initial: 100
+
+input_boolean:
+  cc_living_left_available:
+    name: Living left available
+    initial: true
+  cc_living_right_available:
+    name: Living right available
+    initial: true
+  cc_bedroom_available:
+    name: Bedroom available
+    initial: true
+  cc_kitchen_blind_available:
+    name: Kitchen blind available
+    initial: true
+  cc_hall_readonly_available:
+    name: Hall (no position) available
+    initial: true

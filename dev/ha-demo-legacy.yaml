@@ -1,0 +1,130 @@
+# Demo covers for testing curtain-control-card in a real Home Assistant.
+# Load as a package together with ha-demo-helpers.yaml; see dev/README.md.
+# Legacy template syntax for HA 2024.8 (removed in newer releases).
+
+cover:
+  - platform: template
+    covers:
+      cc_living_left:
+        friendly_name: Living left
+        unique_id: cc_living_left
+        device_class: curtain
+        position_template: "{{ states('input_number.cc_living_left_position') | int(0) }}"
+        availability_template: "{{ is_state('input_boolean.cc_living_left_available', 'on') }}"
+        open_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_left_position
+          data:
+            value: 100
+        close_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_left_position
+          data:
+            value: 0
+        stop_cover:
+          - delay: 0
+        set_cover_position:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_left_position
+          data:
+            value: '{{ position }}'
+      cc_living_right:
+        friendly_name: Living right
+        unique_id: cc_living_right
+        device_class: curtain
+        position_template: "{{ states('input_number.cc_living_right_position') | int(0) }}"
+        availability_template: "{{ is_state('input_boolean.cc_living_right_available', 'on') }}"
+        open_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_right_position
+          data:
+            value: 100
+        close_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_right_position
+          data:
+            value: 0
+        stop_cover:
+          - delay: 0
+        set_cover_position:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_living_right_position
+          data:
+            value: '{{ position }}'
+      cc_bedroom:
+        friendly_name: Bedroom
+        unique_id: cc_bedroom
+        device_class: curtain
+        position_template: "{{ states('input_number.cc_bedroom_position') | int(0) }}"
+        availability_template: "{{ is_state('input_boolean.cc_bedroom_available', 'on') }}"
+        open_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_bedroom_position
+          data:
+            value: 100
+        close_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_bedroom_position
+          data:
+            value: 0
+        stop_cover:
+          - delay: 0
+        set_cover_position:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_bedroom_position
+          data:
+            value: '{{ position }}'
+      cc_kitchen_blind:
+        friendly_name: Kitchen blind
+        unique_id: cc_kitchen_blind
+        device_class: shade
+        position_template: "{{ states('input_number.cc_kitchen_blind_position') | int(0) }}"
+        availability_template: "{{ is_state('input_boolean.cc_kitchen_blind_available', 'on') }}"
+        open_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_kitchen_blind_position
+          data:
+            value: 100
+        close_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_kitchen_blind_position
+          data:
+            value: 0
+        stop_cover:
+          - delay: 0
+        set_cover_position:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_kitchen_blind_position
+          data:
+            value: '{{ position }}'
+      cc_hall_readonly:
+        friendly_name: Hall (no position)
+        unique_id: cc_hall_readonly
+        position_template: "{{ states('input_number.cc_hall_readonly_position') | int(0) }}"
+        availability_template: "{{ is_state('input_boolean.cc_hall_readonly_available', 'on') }}"
+        open_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_hall_readonly_position
+          data:
+            value: 100
+        close_cover:
+          action: input_number.set_value
+          target:
+            entity_id: input_number.cc_hall_readonly_position
+          data:
+            value: 0
+        stop_cover:
+          - delay: 0
