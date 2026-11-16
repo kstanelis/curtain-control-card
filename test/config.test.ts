@@ -39,6 +39,9 @@ describe('normalizeConfig', () => {
     expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], height: 400 }).height).toBe(
       '400px',
     );
+    expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], height: ' 420.5 ' }).height).toBe(
+      '420.5px',
+    );
     expect(normalizeConfig({ type: TYPE, entities: ['cover.a'], height: '50vh' }).height).toBe(
       '50vh',
     );
