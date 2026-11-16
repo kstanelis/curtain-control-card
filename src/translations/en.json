@@ -8,14 +8,16 @@
   "card.position": "Position",
   "editor.curtains": "Curtains",
   "editor.appearance": "Appearance",
+  "editor.entities": "Curtains (up to 8)",
   "editor.style": "Style",
   "editor.theme": "Theme",
   "editor.height": "Height",
   "editor.accent": "Accent colour",
+  "editor.accent_placeholder": "Theme primary colour",
   "editor.name": "Name",
   "editor.style_pill": "Pill",
   "editor.style_fabric": "Fabric",
-  "editor.theme_auto": "Auto (follow Home Assistant)",
+  "editor.theme_auto": "Auto (HA theme)",
   "editor.theme_light": "Light",
   "editor.theme_dark": "Dark"
 }

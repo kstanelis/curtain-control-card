@@ -17,6 +17,11 @@ function nameOf(hass: HomeAssistant, conf: EntityConf, stateObj: HassEntity | un
   return formatted ?? nonBlank(stateObj.attributes.friendly_name) ?? conf.entity;
 }
 
+/** The name HA shows for an entity, ignoring any card config name. */
+export function entityName(hass: HomeAssistant, entityId: string): string {
+  return nameOf(hass, { entity: entityId }, hass.states[entityId]);
+}
+
 /** Anti-corruption layer: configured entities + hass → the card's Curtain model. */
 export function toCurtains(hass: HomeAssistant, entities: readonly EntityConf[]): Curtain[] {
   return entities.map((conf, i) => {

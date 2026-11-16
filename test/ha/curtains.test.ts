@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toCurtains } from '../../src/ha/curtains';
+import { entityName, toCurtains } from '../../src/ha/curtains';
 import { fakeHass } from '../helpers/hass';
 
 const a = { state: 'open', attributes: { current_position: 65, supported_features: 15 } };
@@ -67,6 +67,11 @@ describe('toCurtains', () => {
       const hass = fakeHass({ 'cover.a': { ...a, attributes: { friendly_name: ' ' } } });
       hass.formatEntityName = () => '';
       expect(toCurtains(hass, [{ entity: 'cover.a' }])[0]?.name).toBe('cover.a');
+    });
+
+    it('entityName gives the HA name without a config name', () => {
+      expect(entityName(fakeHass({ 'cover.a': named }), 'cover.a')).toBe('Living room');
+      expect(entityName(fakeHass({}), 'cover.x')).toBe('cover.x');
     });
   });
 });

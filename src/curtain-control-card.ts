@@ -21,6 +21,7 @@ import { supportsColorMix } from './ui/css-support';
 import { mdiAlertCircleOutline, mdiArrowDown, mdiArrowUp, mdiStop } from '@mdi/js';
 import { syncPulse } from './ui/motion';
 import { SliderDrag } from './ui/slider-drag';
+import { EDITOR_TYPE } from './ui/editor';
 import { cardStyles } from './ui/styles';
 
 /** Probed once per page: the engine's color-mix support never changes. */
@@ -81,6 +82,10 @@ export class CurtainControlCard extends LitElement {
   private readonly onPointerCancel = (): void => {
     this.drag.cancel();
   };
+
+  static getConfigElement(): HTMLElement {
+    return document.createElement(EDITOR_TYPE);
+  }
 
   static getStubConfig(hass: HomeAssistant): ReturnType<typeof stubConfig> {
     return stubConfig(hass);

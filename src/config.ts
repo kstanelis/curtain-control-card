@@ -61,12 +61,13 @@ export function normalizeConfig(raw: unknown, opts: { allowEmpty?: boolean } = {
   if (typeof theme !== 'string' || !THEMES.includes(theme)) {
     throw new Error('theme must be auto, light or dark');
   }
+  const rawHeight = typeof raw.height === 'number' ? String(raw.height) : raw.height;
   const height =
-    typeof raw.height === 'number'
-      ? `${String(raw.height)}px`
-      : typeof raw.height === 'string' && raw.height.trim() !== ''
-        ? raw.height
-        : DEFAULTS.height;
+    typeof rawHeight === 'string' && rawHeight.trim() !== ''
+      ? /^\d+(\.\d+)?$/.test(rawHeight.trim())
+        ? `${rawHeight.trim()}px`
+        : rawHeight
+      : DEFAULTS.height;
 
   const accent = typeof raw.accent === 'string' ? raw.accent.trim() : '';
 
