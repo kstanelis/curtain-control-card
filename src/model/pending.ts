@@ -1,3 +1,5 @@
+import { isMoving } from './curtain';
+
 const HOLD_MS = 30_000;
 const REACHED_WITHIN = 1;
 
@@ -26,7 +28,7 @@ export class PendingTargets {
   resolve(key: string, current: number | null, state: string, now: number): number | null {
     const p = this.items.get(key);
     if (!p) return null;
-    const moving = state === 'opening' || state === 'closing';
+    const moving = isMoving(state);
     const reached = current !== null && Math.abs(current - p.target) <= REACHED_WITHIN;
     const stopped = p.moved && !moving;
     if (reached || stopped || now - p.since >= HOLD_MS) {

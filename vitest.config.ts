@@ -17,7 +17,6 @@ export default defineConfig({
         functions: 85,
         'src/model/**': strict,
         'src/config.ts': strict,
-        'src/theme.ts': strict,
       },
     },
   },

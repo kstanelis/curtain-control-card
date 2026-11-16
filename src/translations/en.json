@@ -1,0 +1,20 @@
+{
+  "card.open": "Open",
+  "card.stop": "Stop",
+  "card.close": "Close",
+  "card.unavailable": "Unavailable",
+  "card.no_curtains": "Pick at least one curtain",
+  "card.position": "Position",
+  "editor.curtains": "Curtains",
+  "editor.appearance": "Appearance",
+  "editor.style": "Style",
+  "editor.theme": "Theme",
+  "editor.height": "Height",
+  "editor.accent": "Accent colour",
+  "editor.name": "Name",
+  "editor.style_pill": "Pill",
+  "editor.style_fabric": "Fabric",
+  "editor.theme_auto": "Auto (follow Home Assistant)",
+  "editor.theme_light": "Light",
+  "editor.theme_dark": "Dark"
+}
