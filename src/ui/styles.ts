@@ -133,6 +133,7 @@ export const cardStyles = css`
     display: flex;
     justify-content: center;
     box-sizing: border-box;
+    transition: height 150ms ease-out;
   }
   /* Room for the handle bar; read-only columns have none, so 0 % stays empty. */
   .fill.handle {
@@ -156,6 +157,7 @@ export const cardStyles = css`
       var(--cc-fabric-a) 0 12px,
       var(--cc-fabric-b) 12px 24px
     );
+    transition: height 150ms ease-out;
   }
   .fabric-edge {
     position: absolute;
@@ -164,6 +166,16 @@ export const cardStyles = css`
     height: 0;
     display: flex;
     justify-content: center;
+    transition: top 150ms ease-out;
+  }
+  /* Under a finger or held keys the fill follows instantly; reduced motion never animates. */
+  .live .fill,
+  .live .fabric-cloth,
+  .live .fabric-edge,
+  .reduced .fill,
+  .reduced .fabric-cloth,
+  .reduced .fabric-edge {
+    transition: none;
   }
   .fabric-handle {
     display: block;

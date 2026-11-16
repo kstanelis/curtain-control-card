@@ -19,6 +19,7 @@ import { GRID_OPTIONS, LAYOUT_OPTIONS, cardSize } from './model/sizing';
 import { themeTokens } from './model/theme';
 import { supportsColorMix } from './ui/css-support';
 import { mdiAlertCircleOutline, mdiArrowDown, mdiArrowUp, mdiStop } from '@mdi/js';
+import { syncPulse } from './ui/motion';
 import { SliderDrag } from './ui/slider-drag';
 import { cardStyles } from './ui/styles';
 
@@ -45,6 +46,13 @@ export class CurtainControlCard extends LitElement {
 
   @state() private config?: CardConfig;
   @state() private size = { w: 0, h: 0 };
+  @state() private reduced = false;
+  private motionQuery?: MediaQueryList;
+  /** Indicators pulsing after the last render. */
+  private pulsing = new Set<Element>();
+  private readonly onMotionPref = (): void => {
+    this.reduced = this.motionQuery?.matches ?? false;
+  };
   private _hass?: HomeAssistant;
   private observer?: ResizeObserver;
   private observed?: Element;
@@ -128,6 +136,10 @@ export class CurtainControlCard extends LitElement {
     });
     this.observed = undefined;
     this.observeCard();
+    this.motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this.motionQuery.addEventListener('change', this.onMotionPref);
+    this.reduced = this.motionQuery.matches;
+    if (this.hasUpdated) this.syncPulses(); // disconnect cancelled them; DOM is unchanged
   }
 
   override disconnectedCallback(): void {
@@ -137,11 +149,23 @@ export class CurtainControlCard extends LitElement {
     this.keyed.clear();
     for (const t of this.timers.values()) clearTimeout(t);
     this.timers.clear();
+    this.motionQuery?.removeEventListener('change', this.onMotionPref);
+    for (const el of this.pulsing) syncPulse(el, false, this.reduced);
+    this.pulsing.clear();
   }
 
   /** ha-card exists only once config is set, which may be after the first render. */
   protected override updated(): void {
     this.observeCard();
+    this.syncPulses();
+  }
+
+  /** The indicator is rendered only while its cover runs, so presence means running. */
+  private syncPulses(): void {
+    const now = new Set<Element>(this.shadowRoot?.querySelectorAll('svg.moving') ?? []);
+    for (const el of this.pulsing) if (!now.has(el)) syncPulse(el, false, this.reduced);
+    for (const el of now) syncPulse(el, true, this.reduced);
+    this.pulsing = now;
   }
 
   private observeCard(): void {
@@ -160,7 +184,11 @@ export class CurtainControlCard extends LitElement {
       ...tokens,
       height: this.layout === 'grid' ? '100%' : config.height,
     };
-    const classes = { [config.style]: true, forced: config.theme !== 'auto' };
+    const classes = {
+      [config.style]: true,
+      forced: config.theme !== 'auto',
+      reduced: this.reduced,
+    };
     const hass = this._hass;
     return html`<ha-card class=${classMap(classes)} style=${styleMap(cardStyle)}>
       ${
@@ -216,6 +244,7 @@ export class CurtainControlCard extends LitElement {
       [layout.buttons]: true,
       [v.status]: true,
       dragging,
+      live: dragging || this.keyed.has(v.key),
     };
     const readout = html`${
         v.moving && !dragging
