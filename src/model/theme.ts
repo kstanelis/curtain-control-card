@@ -16,7 +16,7 @@ interface Palette {
 const DEFAULT_ACCENT = '#03a9f4';
 const WINDOW = '#5b8db8';
 
-/** Forced palettes (spec §8). */
+/** Forced palettes. */
 export const PALETTES: Readonly<Record<'dark' | 'light', Palette>> = {
   dark: {
     card: '#1c1c1c',
@@ -67,7 +67,7 @@ const MIXED = {
   '--cc-window': `color-mix(in srgb, var(--cc-card), ${WINDOW} 35%)`,
 };
 
-/** Token map for the card root (spec §8 palette, derived tokens, color-mix fallback). */
+/** Token map for the card root: palette, derived tokens, color-mix fallback. */
 export function themeTokens(
   mode: ThemeMode,
   accent: string | undefined,

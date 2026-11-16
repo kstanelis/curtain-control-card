@@ -66,7 +66,7 @@ const SET = (id: string, position: number) => [
   { entity_id: id, position },
 ];
 
-describe('tap and drag (spec §4)', () => {
+describe('tap and drag', () => {
   it('down sets at once, move updates live, up sends exactly one command', async () => {
     const hass = fakeHass({ 'cover.a': full(20) });
     const el = await mount({ entities: ['cover.a'] }, hass);
@@ -81,7 +81,7 @@ describe('tap and drag (spec §4)', () => {
     expect(hass.calls).toEqual([SET('cover.a', 80)]);
   });
 
-  it('release at the current position still resends it (owner, 2026-11-16)', async () => {
+  it('release at the current position still resends it', async () => {
     // HA 2024.8 demo covers step toward a target without reporting opening, so the card cannot
     // tell a resting cover from a moving one: always send.
     const hass = fakeHass({ 'cover.a': full(50) });
@@ -112,7 +112,7 @@ describe('tap and drag (spec §4)', () => {
     expect(one(el, '.column').classList.contains('dragging')).toBe(false);
   });
 
-  it('Review Focus 1: a hass update mid-drag does not move the readout', async () => {
+  it('a hass update mid-drag does not move the readout', async () => {
     const hass = fakeHass({ 'cover.a': full(20) });
     const el = await mount({ entities: ['cover.a'] }, hass);
     await pointer(el, 'pointerdown', 100);
@@ -120,14 +120,14 @@ describe('tap and drag (spec §4)', () => {
     expect(readouts(el)).toEqual(['50%']);
   });
 
-  it('Review Focus 4: the same entity twice — dragging column 0 leaves column 1', async () => {
+  it('the same entity twice — dragging column 0 leaves column 1', async () => {
     const hass = fakeHass({ 'cover.a': full(20) });
     const el = await mount({ entities: ['cover.a', 'cover.a'] }, hass);
     await pointer(el, 'pointerdown', 100, 0);
     expect(readouts(el)).toEqual(['50%', '20%']);
   });
 
-  it('Review Focus 5: setConfig mid-drag cancels it; release sends nothing', async () => {
+  it('setConfig mid-drag cancels it; release sends nothing', async () => {
     const hass = fakeHass({ 'cover.a': full(20), 'cover.b': full(40) });
     const el = await mount({ entities: ['cover.a', 'cover.b'] }, hass);
     await pointer(el, 'pointerdown', 100, 1);
@@ -149,7 +149,7 @@ describe('tap and drag (spec §4)', () => {
   });
 });
 
-describe('pending target (spec §4)', () => {
+describe('pending target', () => {
   it('shows the target while the cover catches up, then the entity again', async () => {
     let hass = fakeHass({ 'cover.a': full(20) });
     const el = await mount({ entities: ['cover.a'] }, hass);
@@ -226,7 +226,7 @@ describe('pending target (spec §4)', () => {
   });
 });
 
-describe('keyboard (spec §4)', () => {
+describe('keyboard', () => {
   it('arrow keys step by 5, one command on keyup; Home is 100', async () => {
     const hass = fakeHass({ 'cover.a': full(50), 'cover.b': full(50) });
     const el = await mount({ entities: ['cover.a', 'cover.b'] }, hass);

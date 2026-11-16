@@ -13,7 +13,6 @@ export interface Layout {
   sizes: { name: number; pct: number; btn: number; header: number; chip: number };
 }
 
-// Spec §4 "Layout" — keep in sync with the canvas Card.dc.html renderVals().
 const PAD = 16;
 const GAP_X = 8;
 const GAP_Y = 12;

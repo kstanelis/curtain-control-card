@@ -8,9 +8,9 @@ export interface StubCandidate {
 }
 
 const STUB_MAX = 4;
-/** Stub preference order; generic device classes only, never names (spec §9). */
+/** Stub preference order; generic device classes only, never names. */
 const STUB_ORDER = ['curtain', 'shade', 'blind'] as const;
-/** Device classes the card offers itself for in HA's card picker (spec §9). */
+/** Device classes the card offers itself for in HA's card picker. */
 const SUGGESTED = ['curtain', 'shade', 'blind'] as const;
 
 const classRank = (dc: unknown): number => {

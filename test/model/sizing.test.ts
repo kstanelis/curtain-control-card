@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GRID_OPTIONS, LAYOUT_OPTIONS, cardSize } from '../../src/model/sizing';
 
-describe('cardSize (Masonry, spec §7: ceil(heightPx / 50))', () => {
+describe('cardSize (Masonry: ceil(heightPx / 50))', () => {
   it.each([
     ['360px', 8],
     ['480px', 10],
@@ -21,7 +21,7 @@ describe('cardSize (Masonry, spec §7: ceil(heightPx / 50))', () => {
   );
 });
 
-describe('cardSize with a measured height (owner, 2026-11-16)', () => {
+describe('cardSize with a measured height', () => {
   it('non-px height uses the measured rendered height', () => {
     expect(cardSize('50vh', 576)).toBe(12);
     expect(cardSize('40rem', 640)).toBe(13);
@@ -36,7 +36,7 @@ describe('cardSize with a measured height (owner, 2026-11-16)', () => {
   });
 });
 
-describe('Sections grid (spec §7)', () => {
+describe('Sections grid', () => {
   it('getGridOptions (HA 2024.11+)', () => {
     expect(GRID_OPTIONS).toEqual({ columns: 12, rows: 6, min_columns: 3, min_rows: 4 });
   });

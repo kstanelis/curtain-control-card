@@ -330,7 +330,7 @@ export class CurtainControlCard extends LitElement {
     callCover(this._hass, action, v.entityId).catch(() => undefined);
   }
 
-  /** Keyboard (spec §4): step on keydown (auto-repeat included), one command once all keys are up. */
+  /** Keyboard: step on keydown (auto-repeat included), one command once all keys are up. */
   private keyDown(v: ColumnView, ev: KeyboardEvent): void {
     if (!v.interactive || this.drag.value(v.key) !== null) return;
     const next = keyStep(ev.key, v.fill);
@@ -349,13 +349,13 @@ export class CurtainControlCard extends LitElement {
     this.commit(v.key, k.v);
   }
 
-  /** Release of a drag or key: exactly one set_cover_position (spec §4). */
+  /** Release of a drag or key: exactly one set_cover_position. */
   private commit(key: string, v: number): void {
     this.requestUpdate();
     const hass = this._hass;
     const curtain = this.curtains.get(key);
     if (!hass || !curtain?.features.setPosition) return;
-    // Every release resends, even at the current position (owner, 2026-11-16).
+    // Always resend: some covers never report opening/closing, so "already there" can't be trusted.
     this.pending.set(key, v, Date.now());
     clearTimeout(this.timers.get(key));
     this.timers.set(

@@ -8,7 +8,7 @@ interface Active {
 }
 
 /**
- * Pointer gesture on one slider track (spec §4 "Tap sets %"): pointerdown sets the value at once
+ * Pointer gesture on one slider track: pointerdown sets the value at once
  * and captures the pointer, pointermove updates live, pointerup commits once, cancel reverts.
  * No Home Assistant knowledge: the card decides what a commit does.
  */

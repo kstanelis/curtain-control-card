@@ -70,7 +70,7 @@ describe('render', () => {
     expect(track.getAttribute('aria-valuenow')).toBe('65');
   });
 
-  it('only interactive pill fills reserve room for the handle bar (seen on real HA)', async () => {
+  it('only interactive pill fills reserve room for the handle bar', async () => {
     const hass = fakeHass({
       'cover.a': full(0),
       'cover.r': { state: 'closed', attributes: { supported_features: 3 } },
@@ -102,7 +102,7 @@ describe('render', () => {
   });
 });
 
-describe('buttons and more-info (spec §6)', () => {
+describe('buttons and more-info', () => {
   it.each([
     ['.open', 'open_cover'],
     ['.stop', 'stop_cover'],
@@ -210,7 +210,7 @@ describe('hass updates', () => {
   });
 });
 
-describe('sizing hooks (spec §7)', () => {
+describe('sizing hooks', () => {
   it('getCardSize from px height; grid options are fresh copies', async () => {
     const el = await mount({ entities: ids4 }, four);
     expect(el.getCardSize()).toBe(8);
@@ -227,8 +227,6 @@ describe('sizing hooks (spec §7)', () => {
 });
 
 describe('config', () => {
-  // Owner decision 2026-11-16 (1a): HA sets `preview` only after setConfig, so an empty
-  // list never throws; the card shows the no-curtains hint everywhere (spec Edge 6).
   it('no entities shows the hint instead of throwing', async () => {
     const el = document.createElement('curtain-control-card');
     el.setConfig({ type: 'x', entities: [] });

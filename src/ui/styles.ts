@@ -4,7 +4,7 @@ import { css } from 'lit';
 export const cardStyles = css`
   :host {
     display: block;
-    /* Sections: fill the grid cell HA sizes from getGridOptions (seen on real HA 2026-11-16). */
+    /* Sections: fill the grid cell HA sizes from getGridOptions. */
     height: 100%;
   }
   ha-card {
@@ -106,7 +106,6 @@ export const cardStyles = css`
     outline: 2px solid var(--cc-accent);
     outline-offset: 2px;
   }
-  /* Drag ring (spec §5 "dragging"). */
   .dragging .track {
     box-shadow: 0 0 0 3px var(--cc-accent-tint);
   }

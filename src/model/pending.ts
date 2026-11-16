@@ -1,6 +1,6 @@
 import { isMoving } from './curtain';
 
-/** Pending target is shown at most this long (spec §4). */
+/** Pending target is shown at most this long. */
 export const PENDING_HOLD_MS = 30_000;
 const REACHED_WITHIN = 1;
 
@@ -11,7 +11,7 @@ interface Pending {
 }
 
 /**
- * Targets sent to covers, shown until the cover catches up (spec §4 "Pending target"),
+ * Targets sent to covers, shown until the cover catches up,
  * keyed by column key `${index}:${entityId}` so duplicate entities stay independent.
  */
 export class PendingTargets {

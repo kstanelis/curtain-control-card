@@ -29,7 +29,7 @@ const THEMES: readonly string[] = ['auto', 'light', 'dark'];
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
-/** Accepted entity domain (spec §2 ROLE_DOMAINS). */
+/** Accepted entity domain. */
 export const isCoverId = (id: string): boolean => id.startsWith('cover.');
 
 function normalizeEntity(item: unknown): EntityConf {

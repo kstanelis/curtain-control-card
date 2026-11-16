@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PALETTES, themeTokens } from '../../src/model/theme';
 import { contrast, mix } from '../helpers/color';
 
-describe('themeTokens — base palette (spec §8)', () => {
+describe('themeTokens — base palette', () => {
   it('dark', () => {
     expect(themeTokens('dark', undefined, true)).toMatchObject({
       '--cc-card': '#1c1c1c',
@@ -94,7 +94,7 @@ describe('themeTokens — derived tokens', () => {
   });
 });
 
-describe('contrast (spec §8 target ≥ 4.5:1)', () => {
+describe('contrast (target ≥ 4.5:1)', () => {
   const accents = ['#03a9f4', '#e0a24a', '#7e57c2'];
 
   it.each(['dark', 'light'] as const)('accent-text on %s card for blue, amber, purple', (mode) => {
@@ -104,7 +104,7 @@ describe('contrast (spec §8 target ≥ 4.5:1)', () => {
     }
   });
 
-  it('accent-text with the HA 2026.11 default palette (seen on real HA)', () => {
+  it('accent-text with the HA 2026.11 default palette', () => {
     // auto mode resolves to these: primary #009ac7, light text #141414, dark text #e1e1e1
     expect(contrast(mix('#009ac7', '#141414', 45), '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(contrast(mix('#009ac7', '#e1e1e1', 45), '#1c1c1c')).toBeGreaterThanOrEqual(4.5);
