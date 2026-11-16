@@ -33,11 +33,14 @@ export const isMoving = (state: string): boolean => state === 'opening' || state
 
 const KNOWN: readonly string[] = ['open', 'closed', 'opening', 'closing'];
 
+/** False for unavailable, unknown and any other state the card draws as unavailable. */
+export const isKnownState = (state: string): boolean => KNOWN.includes(state);
+
 /** Validates raw values: unknown states become unavailable, position is clamped or null. */
 export function makeCurtain(input: CurtainInput): Curtain {
   return Object.freeze({
     ...input,
-    state: KNOWN.includes(input.state) ? (input.state as CurtainState) : 'unavailable',
+    state: isKnownState(input.state) ? (input.state as CurtainState) : 'unavailable',
     position: clampPercent(input.position),
     features: Object.freeze({ ...input.features }),
   });
