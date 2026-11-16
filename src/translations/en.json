@@ -4,6 +4,7 @@
   "card.close": "Close",
   "card.unavailable": "Unavailable",
   "card.no_curtains": "Pick at least one curtain",
+  "card.no_curtains_help": "Edit the card and add up to 8 cover entities.",
   "card.position": "Position",
   "editor.curtains": "Curtains",
   "editor.appearance": "Appearance",

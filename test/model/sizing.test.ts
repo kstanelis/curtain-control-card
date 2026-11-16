@@ -21,6 +21,21 @@ describe('cardSize (Masonry, spec §7: ceil(heightPx / 50))', () => {
   );
 });
 
+describe('cardSize with a measured height (owner, 2026-11-16)', () => {
+  it('non-px height uses the measured rendered height', () => {
+    expect(cardSize('50vh', 576)).toBe(12);
+    expect(cardSize('40rem', 640)).toBe(13);
+  });
+
+  it('px height ignores the measurement', () => {
+    expect(cardSize('360px', 1000)).toBe(8);
+  });
+
+  it('not measured yet (0) → default', () => {
+    expect(cardSize('50vh', 0)).toBe(8);
+  });
+});
+
 describe('Sections grid (spec §7)', () => {
   it('getGridOptions (HA 2024.11+)', () => {
     expect(GRID_OPTIONS).toEqual({ columns: 12, rows: 6, min_columns: 3, min_rows: 4 });

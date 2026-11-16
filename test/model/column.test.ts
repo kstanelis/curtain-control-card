@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { columnView } from '../../src/model/column';
+import { columnView, fabricChipEdge } from '../../src/model/column';
 import { makeCurtain, type CurtainInput } from '../../src/model/curtain';
 
 const all = { open: true, stop: true, close: true, setPosition: true };
@@ -88,5 +88,17 @@ describe('columnView — unavailable / unknown / missing (spec §3, Edge 1)', ()
     expect(v.disabled).toBe(true);
     expect(v.buttons).toEqual({ open: true, stop: true, close: true });
     expect(v.moving).toBeNull();
+  });
+});
+
+describe('fabricChipEdge (owner 2026-11-16: chip never covers the handle)', () => {
+  it.each([
+    [0, true, 'top'],
+    [49, true, 'top'],
+    [50, true, 'bottom'],
+    [100, true, 'bottom'],
+    [0, false, 'bottom'],
+  ] as const)('fill %i, interactive %s → %s', (fill, interactive, edge) => {
+    expect(fabricChipEdge({ fill, interactive })).toBe(edge);
   });
 });

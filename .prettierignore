@@ -3,3 +3,5 @@ coverage/
 .superpowers/
 docs/superpowers/
 package-lock.json
+.ha-*/
+.playwright-mcp/

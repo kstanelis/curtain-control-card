@@ -58,3 +58,11 @@ export function columnView(c: Curtain, override: number | null): ColumnView {
   const fill = clampPercent(override) ?? c.position;
   return { ...common, status: 'normal', fill, readout: `${String(fill)}%`, interactive: true };
 }
+
+/**
+ * Fabric readout chip edge: on the side away from the fabric handle, so they never overlap.
+ * Handle sits at (100 − fill)% from the top; read-only columns have no handle.
+ */
+export function fabricChipEdge(v: Pick<ColumnView, 'fill' | 'interactive'>): 'top' | 'bottom' {
+  return v.interactive && v.fill < 50 ? 'top' : 'bottom';
+}
