@@ -10,7 +10,7 @@ describe('computeLayout', () => {
     expect(l.rowH).toBeCloseTo(328);
     expect(l.compact).toBe(true);
     expect(l.buttons).toBe('stacked');
-    expect(l.sizes).toEqual({ name: 13, pct: 20, btn: 40, header: 44 });
+    expect(l.sizes).toEqual({ name: 13, pct: 20, btn: 40, header: 44, chip: 14 });
   });
 
   it('8 fabric curtains in a Masonry column wrap to 2 rows of 4', () => {
@@ -35,7 +35,7 @@ describe('computeLayout', () => {
     expect(l.colW).toBeCloseTo(330);
     expect(l.compact).toBe(false);
     expect(l.buttons).toBe('row');
-    expect(l.sizes).toEqual({ name: 16, pct: 28, btn: 48, header: 36 });
+    expect(l.sizes).toEqual({ name: 16, pct: 28, btn: 48, header: 36, chip: 20 });
   });
 
   it('wide fabric columns put buttons at the side', () => {

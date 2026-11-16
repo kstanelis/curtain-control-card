@@ -8,6 +8,8 @@ export interface HassEntity {
 export interface HomeAssistant {
   states: Record<string, HassEntity | undefined>;
   locale?: { language: string };
+  /** HA's own translations; a new function arrives when translations load. */
+  localize?(key: string, ...args: unknown[]): string;
   callService(domain: string, service: string, data: Record<string, unknown>): Promise<unknown>;
   /** HA 2023.9+, always present on the 2024.8 minimum. */
   formatEntityState(stateObj: HassEntity): string;

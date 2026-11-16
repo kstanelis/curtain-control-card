@@ -9,9 +9,12 @@ const px = (height: string): number => {
 
 const DEFAULT_SIZE = Math.ceil(px(DEFAULTS.height) / ROW_PX);
 
-/** Masonry `getCardSize()`: ceil(heightPx / 50); non-px heights use the default height's size. */
-export function cardSize(height: string): number {
-  const h = px(height);
+/**
+ * Masonry `getCardSize()`: ceil(heightPx / 50). A non-px height (vh, rem, calc) uses the
+ * measured rendered height; before the first measurement, the default height's size.
+ */
+export function cardSize(height: string, measuredPx = 0): number {
+  const h = px(height) || measuredPx;
   return h > 0 ? Math.ceil(h / ROW_PX) : DEFAULT_SIZE;
 }
 

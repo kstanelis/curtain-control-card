@@ -9,7 +9,8 @@ export interface Layout {
   rowH: number;
   compact: boolean;
   buttons: ButtonPlacement;
-  sizes: { name: number; pct: number; btn: number; header: number };
+  /** px: name, readout (pill), button height, header height, fabric readout chip. */
+  sizes: { name: number; pct: number; btn: number; header: number; chip: number };
 }
 
 // Spec §4 "Layout" — keep in sync with the canvas Card.dc.html renderVals().
@@ -44,7 +45,9 @@ export function computeLayout(n: number, width: number, height: number, style: C
 
   const btn = compact ? 40 : 48;
   const header = isPill ? (compact ? 44 : 36) : 22;
-  const sizes = compact ? { name: 13, pct: 20, btn, header } : { name: 16, pct: 28, btn, header };
+  const sizes = compact
+    ? { name: 13, pct: 20, btn, header, chip: 14 }
+    : { name: 16, pct: 28, btn, header, chip: 20 };
 
   let buttons: ButtonPlacement = 'stacked';
   if (!isPill && colW >= FABRIC_SIDE_MIN) buttons = 'side';
