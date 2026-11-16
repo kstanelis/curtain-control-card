@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Curtain control card · dev harness</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #e9ebee;
+        color: #212121;
+        font-family: Roboto, Noto, sans-serif;
+      }
+      h2 {
+        margin: 32px 0 12px;
+        font-size: 18px;
+        font-weight: 500;
+      }
+      .controls {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+      }
+      .controls output {
+        font: 12px/1.4 monospace;
+        color: #555;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        align-items: flex-start;
+      }
+      .scene {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        border-radius: 16px;
+      }
+      .scene > .label {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      /* HA default dark / light / Nord: the variables the card reads in auto theme */
+      .ha-dark {
+        background: #111;
+        color: #e1e1e1;
+        --card-background-color: #1c1c1c;
+        --primary-text-color: #e1e1e1;
+        --secondary-text-color: #9b9b9b;
+        --divider-color: #2f2f2f;
+        --primary-color: #03a9f4;
+      }
+      .ha-light {
+        background: #fafafa;
+        color: #212121;
+        --card-background-color: #fff;
+        --primary-text-color: #212121;
+        --secondary-text-color: #727272;
+        --divider-color: #e0e0e0;
+        --primary-color: #03a9f4;
+      }
+      .ha-nord {
+        background: #242933;
+        color: #eceff4;
+        --card-background-color: #2e3440;
+        --primary-text-color: #eceff4;
+        --secondary-text-color: #a3adc2;
+        --divider-color: #434c5e;
+        --primary-color: #88c0d0;
+      }
+      /* Sections cell: 6 rows of 56 px with 8 px gaps */
+      .cell {
+        height: 376px;
+      }
+    </style>
+    <script>
+      // Stub ha-card: a shadow root with a slot, like HA's, so the card's light DOM is untouched.
+      customElements.define(
+        'ha-card',
+        class extends HTMLElement {
+          constructor() {
+            super();
+            const root = this.attachShadow({ mode: 'open' });
+            root.innerHTML = `<style>:host{display:block;box-sizing:border-box;
+              background:var(--ha-card-background,var(--card-background-color,#fff));
+              border:1px solid var(--ha-card-border-color,var(--divider-color,#e0e0e0));
+              border-radius:12px;color:var(--primary-text-color)}</style><slot></slot>`;
+          }
+        },
+      );
+
+      // Controllable prefers-reduced-motion: the card listens for `change` on this query.
+      const REDUCED = '(prefers-reduced-motion: reduce)';
+      const realMatchMedia = window.matchMedia.bind(window);
+      const reducedQuery = Object.assign(new EventTarget(), { media: REDUCED, matches: false });
+      reducedQuery.addListener = (fn) => reducedQuery.addEventListener('change', fn);
+      reducedQuery.removeListener = (fn) => reducedQuery.removeEventListener('change', fn);
+      window.matchMedia = (q) => (q === REDUCED ? reducedQuery : realMatchMedia(q));
+      window.setReducedMotion = (on) => {
+        reducedQuery.matches = on;
+        reducedQuery.dispatchEvent(Object.assign(new Event('change'), { matches: on }));
+      };
+    </script>
+  </head>
+  <body>
+    <div class="controls">
+      <label
+        >Style
+        <select id="style">
+          <option value="">as configured</option>
+          <option>pill</option>
+          <option>fabric</option>
+        </select></label
+      >
+      <label
+        >Theme
+        <select id="theme">
+          <option value="">as configured</option>
+          <option>auto</option>
+          <option>light</option>
+          <option>dark</option>
+        </select></label
+      >
+      <label><input type="checkbox" id="reduced" /> Reduced motion</label>
+      <label><input type="checkbox" id="available" checked /> Living left available</label>
+      <button id="move">Move curtain 2 (opening ↔ closing)</button>
+      <output id="log">service calls appear here</output>
+    </div>
+
+    <h2>Main · Masonry column 464 px</h2>
+    <div class="row">
+      <div class="scene ha-dark" style="width: 464px" data-scene="main-pill"></div>
+      <div class="scene ha-dark" style="width: 464px" data-scene="main-fabric"></div>
+    </div>
+
+    <h2>Widths</h2>
+    <div class="row">
+      <div class="scene ha-dark" style="width: 480px" data-scene="w-sections-12"></div>
+      <div class="scene ha-dark" style="width: 236px" data-scene="w-sections-6"></div>
+      <div class="scene ha-dark" style="width: 300px" data-scene="w-masonry-300"></div>
+    </div>
+    <div class="row">
+      <div class="scene ha-dark" style="width: 1376px" data-scene="w-full"></div>
+    </div>
+
+    <h2>Themes</h2>
+    <div class="row">
+      <div class="scene ha-light" style="width: 294px" data-scene="t-dark"></div>
+      <div class="scene ha-dark" style="width: 294px" data-scene="t-light"></div>
+      <div class="scene ha-light" style="width: 294px" data-scene="t-auto-light"></div>
+      <div class="scene ha-nord" style="width: 294px" data-scene="t-auto-nord"></div>
+    </div>
+
+    <h2>Edge states</h2>
+    <div class="row">
+      <div class="scene ha-dark" style="width: 464px" data-scene="e-states"></div>
+      <div class="scene ha-dark" style="width: 300px" data-scene="e-one"></div>
+      <div class="scene ha-dark" style="width: 300px" data-scene="e-empty"></div>
+    </div>
+
+    <script type="module">
+      const { FakeHass, NO_POSITION } = await import(`./fake-hass.js?t=${Date.now()}`);
+      const $ = (id) => document.getElementById(id);
+      const [log, style, theme, reduced, available, move] = [
+        'log',
+        'style',
+        'theme',
+        'reduced',
+        'available',
+        'move',
+      ].map($);
+
+      const fake = new FakeHass({
+        'cover.living_left': { name: 'Living left', position: 100 },
+        'cover.living_right': { name: 'Living right', position: 65 },
+        'cover.bedroom': { name: 'Bedroom', position: 0 },
+        'cover.kitchen_blind': { name: 'Kitchen blind', position: 40, deviceClass: 'shade' },
+        'cover.office': { name: 'Office', position: 80 },
+        'cover.study': { name: 'Study', position: 20 },
+        'cover.hall': { name: 'Hall', position: 0 },
+        'cover.guest': { name: 'Guest room', position: 55 },
+        'cover.unavailable': { name: 'Unavailable', position: 50 },
+        'cover.readonly': { name: 'Read-only', position: 100, features: NO_POSITION },
+        'cover.opening': { name: 'Opening', position: 30, state: 'opening', frozen: true },
+        'cover.closing': { name: 'Closing', position: 70, state: 'closing', frozen: true },
+      });
+      fake.setAvailable('cover.unavailable', false);
+
+      const MAIN = [
+        'cover.living_left',
+        'cover.living_right',
+        'cover.bedroom',
+        'cover.kitchen_blind',
+      ];
+      const ALL = [...MAIN, 'cover.office', 'cover.study', 'cover.hall', 'cover.guest'];
+      const EDGE = ['cover.unavailable', 'cover.readonly', 'cover.opening', 'cover.closing'];
+
+      const SCENES = {
+        'main-pill': ['pill · 4 · 480 px', { entities: MAIN, height: '480px' }],
+        'main-fabric': ['fabric · 8 · 704 px', { entities: ALL, style: 'fabric', height: '704px' }],
+        'w-sections-12': ['Sections 12 cols', { entities: MAIN }, 'grid'],
+        'w-sections-6': ['Sections 6 cols (wraps)', { entities: MAIN }, 'grid'],
+        'w-masonry-300': ['Masonry 300', { entities: MAIN, style: 'fabric' }],
+        'w-full': ['Full width · 8', { entities: ALL, height: '320px' }],
+        't-dark': ['theme: dark on HA light', { entities: MAIN, theme: 'dark', height: '400px' }],
+        't-light': [
+          'theme: light · amber on HA dark',
+          { entities: MAIN, theme: 'light', accent: '#e0a24a', height: '400px' },
+        ],
+        't-auto-light': ['auto · HA light', { entities: MAIN, height: '400px' }],
+        't-auto-nord': ['auto · Nord', { entities: MAIN, style: 'fabric', height: '400px' }],
+        'e-states': ['unavailable · read-only · opening · closing', { entities: EDGE }],
+        'e-one': ['1 curtain', { entities: ['cover.living_right'], style: 'fabric' }],
+        'e-empty': ['no curtains (hint)', { entities: [] }],
+      };
+
+      const cards = [];
+      await import(`../dist/curtain-control-card.js?t=${Date.now()}`);
+      for (const [scene, [label, config, layout]] of Object.entries(SCENES)) {
+        const host = document.querySelector(`[data-scene="${scene}"]`);
+        const title = document.createElement('div');
+        title.className = 'label';
+        title.textContent = label;
+        host.append(title);
+        const card = document.createElement('curtain-control-card');
+        card.baseConfig = { type: 'custom:curtain-control-card', ...config };
+        card.setConfig(card.baseConfig);
+        if (layout) {
+          card.layout = layout;
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.append(card);
+          host.append(cell);
+        } else {
+          host.append(card);
+        }
+        cards.push(card);
+      }
+      fake.subscribe((hass) => {
+        for (const card of cards) card.hass = hass;
+      });
+
+      document.addEventListener('hass-more-info', (e) => {
+        log.textContent = `more-info ${e.detail.entityId}`;
+      });
+      document.addEventListener('fake-hass-call', (e) => {
+        log.textContent = e.detail;
+      });
+      const override = () => {
+        for (const card of cards) {
+          const config = { ...card.baseConfig };
+          if (style.value) config.style = style.value;
+          if (theme.value) config.theme = theme.value;
+          card.setConfig(config);
+        }
+      };
+      style.addEventListener('change', override);
+      theme.addEventListener('change', override);
+      reduced.addEventListener('change', () => window.setReducedMotion(reduced.checked));
+      available.addEventListener('change', () =>
+        fake.setAvailable('cover.living_left', available.checked),
+      );
+      move.addEventListener('click', () => {
+        const pos = fake.hass.states['cover.living_right'].attributes.current_position;
+        fake.callService('cover', 'set_cover_position', {
+          entity_id: 'cover.living_right',
+          position: pos >= 50 ? 0 : 100,
+        });
+      });
+    </script>
+  </body>
+</html>
