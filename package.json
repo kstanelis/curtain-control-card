@@ -33,10 +33,10 @@
   },
   "devDependencies": {
     "@mdi/js": "^7.4.47",
-    "@playwright/test": "1.64.1",
-    "@vitest/coverage-v8": "^5.1.0",
+    "@playwright/test": "1.65.1",
+    "@vitest/coverage-v8": "^5.1.1",
     "esbuild": "^0.28.2",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-lit": "^2.3.1",
     "eslint-plugin-wc": "^3.1.0",
@@ -47,7 +47,7 @@
     "prettier": "^3.9.10",
     "ts-lit-plugin": "^2.0.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.2",
+    "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
   },
   "overrides": {
